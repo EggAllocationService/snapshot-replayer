@@ -1,3 +1,15 @@
-# base-server
+# snapshot-replayer 
 
-Contains a basic Minestom server implemenation, used for templating other servers by me. Includes database access, world-based database saving, and more.
+will load and play replays created by my plugin RewindRepeat. Name the file "test.replay" in the server's root directory and go in game then run these commands:
+
+```
+/loadreplay
+/instance snap-test
+Optional: /rtp <playername> to tp to a specific player
+```
+
+Controls:
+```
+Place block: play/pause
+Destroy block: change play direction
+```
