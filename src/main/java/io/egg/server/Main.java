@@ -39,6 +39,9 @@ public class Main {
         MinecraftServer.getCommandManager().register(new SwitchInstanceCommand());
         MinecraftServer.getCommandManager().register(new EditMapCommand());
         MinecraftServer.getCommandManager().register(new ExportWorldCommand());
+        MinecraftServer.getCommandManager().register(new LoadSnapshotDebugCommand());
+        MinecraftServer.getCommandManager().register(new ReplaySeekCommand());
+        MinecraftServer.getCommandManager().register(new ReplayTPCommand());
         MinecraftServer.setChunkViewDistance(8);
 
 

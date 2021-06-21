@@ -17,8 +17,9 @@ repositories {
 }
 
 dependencies {
-    compile 'com.github.Minestom:Minestom:-SNAPSHOT'
+    compile 'com.github.Minestom:Minestom:8ec33bb'
     compile 'org.mongodb:mongodb-driver-sync:4.2.0'
+    compile 'org.apache.commons:commons-lang3:3.0'
 }
 
 test {

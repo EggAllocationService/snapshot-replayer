@@ -9,6 +9,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
+import net.minestom.server.instance.IChunkLoader;
 import net.minestom.server.instance.InstanceContainer;
 
 import java.lang.reflect.InvocationTargetException;
@@ -63,6 +64,19 @@ public class InstanceManager {
         instances.put(name, pi);
         instancesByName.put(name, ic);
         
+        return ic;
+    }
+    public InstanceContainer spawn(String name, DefaultProfileDelegate delegate, IChunkLoader loader) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        InstanceContainer ic = handle.createInstanceContainer();
+        ProfileData pd = delegate.getData();
+        ic.setChunkLoader(loader);
+        delegate.setInstance(ic);
+        delegate.setupInstance(ic);
+
+        ProfiledInstance pi = new ProfiledInstance(ic, delegate, pd, name);
+        instances.put(name, pi);
+        instancesByName.put(name, ic);
+
         return ic;
     }
 

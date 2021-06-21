@@ -1,5 +1,6 @@
 package io.egg.server.commands;
 
+import com.google.common.io.Files;
 import io.egg.server.loading.World;
 import io.egg.server.loading.WorldManager;
 import net.kyori.adventure.text.Component;
@@ -9,7 +10,7 @@ import net.minestom.server.command.CommandSender;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.CommandContext;
 import net.minestom.server.command.builder.arguments.ArgumentType;
-import org.apache.commons.io.FileUtils;
+
 
 import java.io.File;
 import java.io.IOException;
@@ -46,7 +47,7 @@ public class ExportWorldCommand extends Command {
             );
             File f =new File(map + ".egg");
             try {
-                FileUtils.writeByteArrayToFile(f, data.array());
+                Files.write(data.array(), f);
             } catch (IOException e) {
                 e.printStackTrace();
                 sender.sendMessage(Component.text("Could not save to file!", TextColor.color(0xff0000)));
