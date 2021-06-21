@@ -1,0 +1,42 @@
+
+plugins {
+    id 'java'
+    id "com.github.johnrengelman.shadow" version "6.1.0"
+    id 'application'
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    maven { url 'https://repo.spongepowered.org/maven' }
+    maven { url 'https://repo.velocitypowered.com/snapshots/' }
+    maven { url 'https://libraries.minecraft.net' }
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    compile 'com.github.Minestom:Minestom:-SNAPSHOT'
+    compile 'org.mongodb:mongodb-driver-sync:4.2.0'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+jar {
+    manifest {
+        attributes "Multi-Release": true,
+                "Main-Class": "io.egg.server.BootstrapMain"
+
+    }
+}
+
+application {
+    mainClass = 'io.egg.server.BootstrapMain'
+}
+
+shadow {
+    mainClassName = "io.egg.server.BootstrapMain"
+}
