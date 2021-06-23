@@ -3,21 +3,30 @@ package io.egg.server.snapshots;
 import io.egg.server.loading.mogang.ChunkSection;
 import io.egg.server.loading.mogang.FakeChunkData;
 import net.minestom.server.instance.*;
+import net.minestom.server.utils.binary.BinaryReader;
 import net.minestom.server.utils.chunk.ChunkCallback;
 import net.minestom.server.world.biomes.Biome;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
 public class SnapshotChunkLoader implements IChunkLoader {
     Snapshot snapshot;
     public SnapshotChunkLoader(Snapshot s) {
         snapshot = s;
     }
+    HashMap<String, byte[]> cached = new HashMap<>();
 
     @Override
     public boolean loadChunk(@NotNull Instance instance, int chunkX, int chunkZ, @Nullable ChunkCallback callback) {
+        String id = chunkX + ":" + chunkZ;
+        if (cached.containsKey(id)) {
+            Chunk cachedChunk = ((InstanceContainer) instance).getChunkSupplier().createChunk(instance, null, chunkX, chunkZ);
+            cachedChunk.readChunk(new BinaryReader(cached.get(id)), callback);
+            return true;
+        }
         FakeChunkData chunk = snapshot.chunks.get(chunkX + ":" + chunkZ);
         if (chunk == null) {
             return false;
@@ -52,6 +61,7 @@ public class SnapshotChunkLoader implements IChunkLoader {
 
     @Override
     public void saveChunk(@NotNull Chunk chunk, @Nullable Runnable callback) {
-        callback.run();
+        String id = chunk.getChunkX() + ":" + chunk.getChunkZ();
+        cached.put(id, chunk.getSerializedData());
     }
 }

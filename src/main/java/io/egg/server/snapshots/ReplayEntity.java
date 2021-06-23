@@ -18,6 +18,7 @@ public class ReplayEntity extends EntityCreature {
         data = info;
         setNoGravity(true);
 
+
     }
     @Override
     public void refreshPosition(@NotNull Position position) {
@@ -41,5 +42,6 @@ public class ReplayEntity extends EntityCreature {
         target.loadChunk(startingPos, chunk -> {
             currentChunk = chunk;
         });
+
     }
 }

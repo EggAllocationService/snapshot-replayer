@@ -48,10 +48,10 @@ public class ReplayTPCommand extends Command {
         if (pp == null) return;
         Position s = pp.getPosition();
         ((Player) sender).teleport(s);
-        for (ReplayPlayer p : r.players.values()) {
+        /*for (ReplayPlayer p : r.players.values()) {
             p.removeViewer((Player) sender);
             p.addViewer((Player) sender);
-        }
+        }*/
 
     }
 }

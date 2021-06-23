@@ -6,9 +6,11 @@ import io.egg.server.loading.mogang.FakeChunkData;
 import io.egg.server.replay.Replay;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
+import net.minestom.server.entity.fakeplayer.FakePlayerOption;
 
 import java.security.InvalidParameterException;
 import java.util.HashMap;
+import java.util.UUID;
 
 public class Snapshot {
     public HashMap<String, FakeChunkData> chunks = new HashMap<>();
@@ -63,13 +65,16 @@ public class Snapshot {
             entityInfo.pitch = bb.readDouble();
             entityInfo.yaw = bb.readDouble();
             try {
-                EntityType.valueOf(entityInfo.type);
+                EntityType z = EntityType.valueOf(entityInfo.type);
+                if (z == EntityType.EXPERIENCE_ORB || z == EntityType.PAINTING || z == EntityType.BOAT || z == EntityType.ITEM_FRAME) {
+                    continue;
+                }
             } catch (IllegalArgumentException e) {
                 System.out.println("Skipping " + entityInfo.type);
                 continue;
             }
             if (entityInfo.type.equals("PLAYER")) {
-                ReplayPlayer pp = new ReplayPlayer(entityInfo);
+                ReplayPlayer pp = ReplayPlayer.create(entityInfo);
                 r.entities.put(entityInfo.id, pp);
                 r.players.put(entityInfo.name, pp);
             } else {

@@ -29,7 +29,7 @@ public class Replay {
     public boolean playing = false;
     public Direction direction = Direction.FORWARDS;
     InstanceContainer ic;
-    public static Team VIEWERS_TEAM;
+    public static Team REPLAY_TEAM;
 
     public void setInstance(InstanceContainer i) {
         ic = i;

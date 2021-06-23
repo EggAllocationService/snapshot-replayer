@@ -86,8 +86,9 @@ public class InstanceManager {
             //p.setInstance(target, new Position(0.5, 65, 0.5));
             return;
         }
-        PlayerJoinProfileEvent e = new PlayerJoinProfileEvent(p);
+        PlayerJoinProfileEvent e = new PlayerJoinProfileEvent(p, target);
         target.callEvent(PlayerJoinProfileEvent.class, e);
+
         if (e.isCancelled()) {
             p.sendMessage(Component.text("Pre-receive hook was declined by other instance: ", TextColor.color(255, 50, 50))
                 .append(Component.text(e.getCancelReason(), TextColor.color(0xfff133)))

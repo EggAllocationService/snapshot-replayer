@@ -7,6 +7,7 @@ import io.egg.server.instances.InstanceManager;
 import io.egg.server.profiles.delegates.LobbyProfileDelegate;
 import io.egg.server.replay.Replay;
 import io.egg.server.skins.SkinManager;
+import io.egg.server.snapshots.ReplayPlayer;
 import io.egg.server.tasks.InstanceNameTask;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -17,7 +18,9 @@ import net.minestom.server.entity.Player;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.player.PlayerLoginEvent;
 import net.minestom.server.event.player.PlayerSkinInitEvent;
+import net.minestom.server.event.player.PlayerSpawnEvent;
 import net.minestom.server.extras.PlacementRules;
+import net.minestom.server.extras.bungee.BungeeCordProxy;
 import net.minestom.server.scoreboard.TeamBuilder;
 import net.minestom.server.scoreboard.TeamManager;
 import net.minestom.server.utils.Position;
@@ -33,7 +36,7 @@ public class Main {
         MinecraftServer.setBrandName("EggServer");
 
         InstanceManager.init();
-        Database.init("testing");
+        Database.init("replays");
         MinecraftServer.getCommandManager().register(new SaveCommand());
         MinecraftServer.getSchedulerManager().buildTask(new InstanceNameTask()).repeat(100, TimeUnit.MILLISECOND).schedule();
         MinecraftServer.getSchedulerManager().buildTask(() -> InstanceManager.get().tick()).repeat(1, TimeUnit.TICK).schedule();
@@ -48,13 +51,17 @@ public class Main {
         MinecraftServer.getCommandManager().register(new ReplayTPCommand());
         MinecraftServer.setChunkViewDistance(8);
 
-        Replay.VIEWERS_TEAM = MinecraftServer.getTeamManager().createTeam("VIEWERS");
+        Replay.REPLAY_TEAM = MinecraftServer.getTeamManager().createTeam("VIEWERS");
         Component base = Component.text("(").color(TextColor.color(0xffffff));
         base = base.append(Component.text("Replay").color(TextColor.color(0x16cc9f)));
         base = base.append(Component.text(") ").color(TextColor.color(0xffffff)));
-        Replay.VIEWERS_TEAM.setPrefix(base);
+        Replay.REPLAY_TEAM.setPrefix(base);
         // placement rules
         PlacementRules.init();
+        if (System.getProperties().containsKey("EnableBungee")) {
+            BungeeCordProxy.enable();
+            System.out.println("Enabled Bungee support");
+        }
 
         try {
             InstanceManager.get().spawn("lobby", new LobbyProfileDelegate());
@@ -65,20 +72,25 @@ public class Main {
 
         GlobalEventHandler globalEventHandler = MinecraftServer.getGlobalEventHandler();
         globalEventHandler.addEventCallback(PlayerLoginEvent.class, event -> {
+
             final Player player = event.getPlayer();
+            if (player instanceof ReplayPlayer) return;
             event.setSpawningInstance(InstanceManager.get().getInstance("lobby"));
-            player.setGameMode(GameMode.CREATIVE);
-            player.setAllowFlying(true);
             player.setRespawnPoint(new Position(0.5, 65, 0.5));
         });
+
         globalEventHandler.addEventCallback(PlayerSkinInitEvent.class, event -> {
             event.setSkin(SkinManager.getName(event.getPlayer().getUsername()));
         });
 
 
 
-
-        m.start("0.0.0.0", 25565, (playerConnection, responseData) -> {
+        int port = 25565;
+        if (System.getProperties().containsKey("port")) {
+            port = Integer.parseInt(System.getProperty("port"));
+        }
+        System.out.println("Set port to " + port);
+        m.start("0.0.0.0", port, (playerConnection, responseData) -> {
             responseData.setOnline(69);
             responseData.setMaxPlayer(420);
             for (Player p : MinecraftServer.getConnectionManager().getOnlinePlayers()) {
