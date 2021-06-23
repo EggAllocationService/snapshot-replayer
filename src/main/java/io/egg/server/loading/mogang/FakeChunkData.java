@@ -70,25 +70,18 @@ public class FakeChunkData{
         // Bukkit.getLogger().info("Packet length: " + d.length);
         int chunky = 0;
 
-            int bitmask = 65535;
 
         int offset = 0;
         boolean n = false;
         while (true) {
 
             buf.position(offset);
-            if (chunky > 15) {
-                break;
-            }
-            if (buf.array().length == offset) {
+            if (buf.array().length == offset || (buf.array().length - offset) < 10 ) {
                 // Bukkit.getLogger().warning("reached end of packet!");
                 break;
 
             }
-            if ((bitmask & (int) Math.pow(2,  chunky)) == 0) {
-                chunky++;
-                continue;
-            }
+
             ChunkSection e = new ChunkSection(chunky);
             e.setBlockCount(buf.getShort());
             int bpb = buf.get();
@@ -220,13 +213,18 @@ public class FakeChunkData{
                     e.setBlocks(blocks.array());
                     chunk.setChunkSection(chunky, e);
                 }
-            } else {
-               // Bukkit.getLogger().severe("Packet has length longer than 5, unable to parse (" + bpb + ")");
-                return null;
+            } else if (bpb == 8) {
+               e.setBlocks(data.array());
             }
+            else {
+                    // Bukkit.getLogger().severe("Packet has length longer than 5, unable to parse (" + bpb + ")");
+                    return null;
+                }
             chunky++;
+            }
 
-        }
+
+
         return chunk;
 
 

@@ -41,7 +41,7 @@ public class PlayerBreakBlockEvent implements ReplayEvent<PlayerBreakBlockEvent>
     @Override
     public void apply(InstanceContainer i, Replay r) {
         i.setBlock(x,y , z, Block.AIR);
-        //((ReplayPlayer) r.entities.get(entityId)).swingMainHand();
+        ((ReplayPlayer) r.entities.get(entityId)).swingMainHand();
 
     }
 

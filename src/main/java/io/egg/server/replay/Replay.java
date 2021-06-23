@@ -11,6 +11,7 @@ import io.egg.server.snapshots.Snapshot;
 import io.egg.server.snapshots.SnapshotChunkLoader;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.instance.InstanceContainer;
+import net.minestom.server.scoreboard.Team;
 
 import java.io.ByteArrayOutputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -28,6 +29,7 @@ public class Replay {
     public boolean playing = false;
     public Direction direction = Direction.FORWARDS;
     InstanceContainer ic;
+    public static Team VIEWERS_TEAM;
 
     public void setInstance(InstanceContainer i) {
         ic = i;

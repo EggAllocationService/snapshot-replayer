@@ -47,10 +47,11 @@ public class ReplayTPCommand extends Command {
         ReplayPlayer pp = r.players.get(target);
         if (pp == null) return;
         Position s = pp.getPosition();
-       // s.setY(200);
         ((Player) sender).teleport(s);
-        sender.sendMessage("Remove: " + pp.removeViewer((Player) sender));
-        sender.sendMessage("Add: " + pp.addViewer((Player) sender));
+        for (ReplayPlayer p : r.players.values()) {
+            p.removeViewer((Player) sender);
+            p.addViewer((Player) sender);
+        }
 
     }
 }

@@ -48,8 +48,8 @@ public class EntityMovementEvent implements ReplayEvent<EntityMovementEvent> {
         newPos.setZ(z);
         newPos.setYaw((float)yaw);
         newPos.setPitch((float) pitch);
-        if (r.entities.get(entityId) instanceof ReplayPlayer) {
-            System.out.println("Teleport " + entityId + " to " + newPos.toString());
+        if (!r.entities.containsKey(entityId)) {
+            return;
         }
         r.entities.get(entityId).teleport(newPos);
 

@@ -5,9 +5,15 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import io.egg.server.replay.Replay;
 import io.egg.server.snapshots.ReplayEntity;
+import io.egg.server.snapshots.ReplayPlayer;
 import io.egg.server.snapshots.SEntityInfo;
+import net.minestom.server.entity.Entity;
+import net.minestom.server.entity.EntityCreature;
 import net.minestom.server.entity.EntityType;
+import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.instance.InstanceContainer;
+
+import java.util.ArrayList;
 
 public class EntitySpawnEvent implements ReplayEvent<EntitySpawnEvent>,ReversibleEvent {
 
@@ -18,6 +24,7 @@ public class EntitySpawnEvent implements ReplayEvent<EntitySpawnEvent>,Reversibl
     public double pitch;
     public double yaw;
     public String type;
+    boolean alreadySpawned = false;
     @Override
     public byte[] serialize() {
         ByteArrayDataOutput bb = ByteStreams.newDataOutput();
@@ -46,6 +53,7 @@ public class EntitySpawnEvent implements ReplayEvent<EntitySpawnEvent>,Reversibl
 
     @Override
     public void apply(InstanceContainer i, Replay r) {
+        if(alreadySpawned) return;
         SEntityInfo s = new SEntityInfo();
         s.type = type;
         s.name = null;
@@ -64,12 +72,18 @@ public class EntitySpawnEvent implements ReplayEvent<EntitySpawnEvent>,Reversibl
         ReplayEntity e = new ReplayEntity(s);
         e.init(i);
         r.entities.put(entityId, e);
+        alreadySpawned = true;
     }
 
     @Override
     public void reverse(InstanceContainer i, Replay r) {
-        if (!r.entities.containsKey(entityId)) return;
+        if (!r.entities.containsKey(entityId)) {
+            System.out.println("WARN: Skipping REMOVE() for entity "  + entityId);
+            return;
+        }
         r.entities.get(entityId).remove();
+        alreadySpawned = false;
         r.entities.remove(entityId);
+
     }
 }

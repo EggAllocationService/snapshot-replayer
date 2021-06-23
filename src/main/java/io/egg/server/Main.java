@@ -5,9 +5,11 @@ import io.egg.server.database.Database;
 import io.egg.server.generators.VoidWorldGenerator;
 import io.egg.server.instances.InstanceManager;
 import io.egg.server.profiles.delegates.LobbyProfileDelegate;
+import io.egg.server.replay.Replay;
 import io.egg.server.skins.SkinManager;
 import io.egg.server.tasks.InstanceNameTask;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.GameMode;
@@ -16,6 +18,8 @@ import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.player.PlayerLoginEvent;
 import net.minestom.server.event.player.PlayerSkinInitEvent;
 import net.minestom.server.extras.PlacementRules;
+import net.minestom.server.scoreboard.TeamBuilder;
+import net.minestom.server.scoreboard.TeamManager;
 import net.minestom.server.utils.Position;
 import net.minestom.server.utils.time.TimeUnit;
 
@@ -44,7 +48,11 @@ public class Main {
         MinecraftServer.getCommandManager().register(new ReplayTPCommand());
         MinecraftServer.setChunkViewDistance(8);
 
-
+        Replay.VIEWERS_TEAM = MinecraftServer.getTeamManager().createTeam("VIEWERS");
+        Component base = Component.text("(").color(TextColor.color(0xffffff));
+        base = base.append(Component.text("Replay").color(TextColor.color(0x16cc9f)));
+        base = base.append(Component.text(") ").color(TextColor.color(0xffffff)));
+        Replay.VIEWERS_TEAM.setPrefix(base);
         // placement rules
         PlacementRules.init();
 

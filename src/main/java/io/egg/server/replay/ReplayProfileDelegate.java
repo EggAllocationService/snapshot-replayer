@@ -1,8 +1,6 @@
 package io.egg.server.replay;
 
-import io.egg.server.profiles.DefaultProfileDelegate;
-import io.egg.server.profiles.EventHandler;
-import io.egg.server.profiles.ProfileData;
+import io.egg.server.profiles.*;
 import io.egg.server.replay.events.types.EntityMovementEvent;
 import io.egg.server.replay.events.types.PlayerBreakBlockEvent;
 import io.egg.server.replay.events.types.ReplayEvent;
@@ -16,6 +14,7 @@ import net.minestom.server.event.player.PlayerEntityInteractEvent;
 import net.minestom.server.event.player.PlayerMoveEvent;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.InstanceContainer;
+import net.minestom.server.instance.block.Block;
 
 import java.util.ArrayList;
 
@@ -48,8 +47,6 @@ public class ReplayProfileDelegate extends DefaultProfileDelegate {
 
         }
     }
-
-
 
     @EventHandler
     public void tick(InstanceTickEvent e) {

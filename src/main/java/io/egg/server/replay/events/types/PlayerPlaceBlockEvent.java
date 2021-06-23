@@ -43,7 +43,7 @@ public class PlayerPlaceBlockEvent implements ReplayEvent<PlayerPlaceBlockEvent>
         try {
             Block m = Material.valueOf(material).getBlock();
             i.setBlock(x,y , z, m);
-           // ((ReplayPlayer) r.entities.get(entityId)).swingMainHand();
+            ((ReplayPlayer) r.entities.get(entityId)).swingMainHand();
         }catch (IllegalArgumentException e){
             // do nothing
         }
