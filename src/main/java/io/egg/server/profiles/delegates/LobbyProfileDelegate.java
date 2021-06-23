@@ -7,6 +7,8 @@ import io.egg.server.profiles.ProfileData;
 import net.minestom.server.data.SerializableData;
 import net.minestom.server.data.SerializableDataImpl;
 import net.minestom.server.entity.GameMode;
+import net.minestom.server.entity.Player;
+import net.minestom.server.event.instance.InstanceTickEvent;
 import net.minestom.server.event.player.PlayerBlockBreakEvent;
 import net.minestom.server.event.player.PlayerBlockPlaceEvent;
 import net.minestom.server.event.player.PlayerMoveEvent;
@@ -41,6 +43,8 @@ public class LobbyProfileDelegate extends DefaultProfileDelegate {
             e.setCancelled(true);
         }
     }
+
+
 
     @Override
     @EventHandler

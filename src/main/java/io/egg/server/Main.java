@@ -49,6 +49,7 @@ public class Main {
         MinecraftServer.getCommandManager().register(new LoadSnapshotDebugCommand());
         MinecraftServer.getCommandManager().register(new ReplaySeekCommand());
         MinecraftServer.getCommandManager().register(new ReplayTPCommand());
+        MinecraftServer.getCommandManager().register(new SpawnBlockCommand());
         MinecraftServer.setChunkViewDistance(8);
 
         Replay.REPLAY_TEAM = MinecraftServer.getTeamManager().createTeam("VIEWERS");

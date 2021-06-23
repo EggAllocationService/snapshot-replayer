@@ -12,6 +12,7 @@ import net.minestom.server.entity.EntityCreature;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.instance.InstanceContainer;
+import net.minestom.server.utils.Vector;
 
 import java.util.ArrayList;
 
@@ -24,6 +25,9 @@ public class EntitySpawnEvent implements ReplayEvent<EntitySpawnEvent>,Reversibl
     public double pitch;
     public double yaw;
     public String type;
+    public double sx;
+    public double sy;
+    public double sz;
     boolean alreadySpawned = false;
     @Override
     public byte[] serialize() {
@@ -48,6 +52,9 @@ public class EntitySpawnEvent implements ReplayEvent<EntitySpawnEvent>,Reversibl
         z = bb.readDouble();
         pitch = bb.readDouble();
         yaw = bb.readDouble();
+        sx = bb.readDouble();
+        sy = bb.readDouble();
+        sz = bb.readDouble();
         return this;
     }
 
@@ -73,6 +80,8 @@ public class EntitySpawnEvent implements ReplayEvent<EntitySpawnEvent>,Reversibl
         e.init(i);
         r.entities.put(entityId, e);
         alreadySpawned = true;
+        Vector velocity = new Vector(sx, sy, sz);
+        //e.setVelocity(velocity);
     }
 
     @Override

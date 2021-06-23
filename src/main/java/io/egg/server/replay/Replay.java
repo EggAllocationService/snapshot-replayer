@@ -30,6 +30,9 @@ public class Replay {
     public Direction direction = Direction.FORWARDS;
     InstanceContainer ic;
     public static Team REPLAY_TEAM;
+    public float playSpeed = 1f;
+    public double tickProgress = 0;
+
 
     public void setInstance(InstanceContainer i) {
         ic = i;
@@ -43,6 +46,8 @@ public class Replay {
         cached = new ReplayProfileDelegate(this);
         return cached;
     }
+
+
 
     public void parentTick() {
         if (playing && direction == Direction.FORWARDS) {
@@ -62,19 +67,83 @@ public class Replay {
 
 
     public void nextTick() {
-        if (capturedTicks.size() <= currentTick +1) {
+        if (playSpeed == 1) {
+            if (capturedTicks.size() <= currentTick +1) {
+                return;
+            }
+            stepTick();
+        } else {
+            if (playSpeed < 1) {
+                tickProgress += playSpeed;
+                if (tickProgress > 1) {
+                    if (capturedTicks.size() <= currentTick +1) {
+                        return;
+                    }
+                    stepTick();
+                    return;
+                } else {
+                    // this is in slow motion, se we gotta GAME
+                    capturedTicks.get(currentTick).applyInterpolated(ic, this, tickProgress, false);
+
+                }
+
+            }else {
+                //goin speedy, lets figure this out
+                int speed = (int) Math.floor(playSpeed);
+                for (int i = 0; i < speed; i++) {
+                    stepTick();
+                }
+            }
+        }
+    }
+
+
+    public void previousTick() {
+        if (playSpeed == 1) {
+            if (currentTick - 1 < 0) {
+                return;
+            }
+            backTick();
+        } else {
+            if (playSpeed < 1) {
+                tickProgress += playSpeed;
+                if (tickProgress > 1) {
+                    if (capturedTicks.size() <= currentTick +1) {
+                        return;
+                    }
+                    backTick();
+                    return;
+                } else {
+                    // this is in slow motion, se we gotta GAME
+                    capturedTicks.get(currentTick).applyInterpolated(ic, this, tickProgress, true);
+
+                }
+
+            }else {
+                //goin speedy, lets figure this out
+                int speed = (int) Math.floor(playSpeed);
+                for (int i = 0; i < speed; i++) {
+                    backTick();
+                }
+            }
+        }
+    }
+    private void stepTick() {
+        if (currentTick + 1 > capturedTicks.size()) {
             return;
         }
         currentTick++;
+        tickProgress = 0;
         capturedTicks.get(currentTick).apply(ic, this);
     }
-    public void previousTick() {
-        if (currentTick == 0) {
+    private void backTick() {
+        if (currentTick - 1 < 0) {
             return;
         }
         capturedTicks.get(currentTick).undo(ic, this);
-        currentTick --;
+        currentTick--;
         capturedTicks.get(currentTick).apply(ic, this);
+        tickProgress = 0;
     }
 
 
