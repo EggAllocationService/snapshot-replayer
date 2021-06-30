@@ -12,6 +12,7 @@ import net.minestom.server.entity.fakeplayer.FakePlayer;
 import net.minestom.server.entity.fakeplayer.FakePlayerOption;
 import net.minestom.server.entity.metadata.PlayerMeta;
 import net.minestom.server.instance.Instance;
+import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.scoreboard.BelowNameTag;
 import net.minestom.server.utils.Position;
 import org.jetbrains.annotations.NotNull;
@@ -22,7 +23,7 @@ import java.util.function.Consumer;
 
 public class ReplayPlayer extends FakePlayer {
     public SEntityInfo edata;
-
+    public InstanceContainer sendMeHere;
     /**
      * Initializes a new {@link FakePlayer} with the given {@code uuid}, {@code username} and {@code option}'s.
      *
@@ -31,7 +32,7 @@ public class ReplayPlayer extends FakePlayer {
      * @param option        Any option for the fake player.
      * @param spawnCallback
      */
-    protected ReplayPlayer(@NotNull UUID uuid, @NotNull String username, @NotNull FakePlayerOption option, @Nullable Consumer<FakePlayer> spawnCallback, SEntityInfo da) {
+    protected ReplayPlayer(@NotNull UUID uuid, @NotNull String username, @NotNull FakePlayerOption option, @Nullable Consumer<FakePlayer> spawnCallback, SEntityInfo da, InstanceContainer target) {
         super(uuid, username, option, spawnCallback);
         edata = da;
         Position startingPos = new Position();
@@ -42,19 +43,19 @@ public class ReplayPlayer extends FakePlayer {
         startingPos.setYaw((float) edata.yaw);
         setNoGravity(true);
         setRespawnPoint(startingPos);
+        sendMeHere = target;
+        System.out.println("Spawning fake player with username " + da.name);
     }
 
     public Component createName() {
         return Component.text("Replay Entity").color(TextColor.color(0x1dd17d));
 
     }
-    public static ReplayPlayer create(SEntityInfo e) {
-        return new ReplayPlayer(UUID.randomUUID(), "[E_" + e.id + "]", new FakePlayerOption(), null, e);
+    public static ReplayPlayer create(SEntityInfo e, InstanceContainer ic, UUID thing) {
+        return new ReplayPlayer(thing, "[E_" + e.id + "]", new FakePlayerOption(), null, e, ic);
     }
     public void init(Instance target) {
 
-
-        setInstance(target);
 
         PlayerMeta meta = (PlayerMeta) getEntityMeta();
         meta.setJacketEnabled(true);
@@ -64,7 +65,7 @@ public class ReplayPlayer extends FakePlayer {
         meta.setLeftSleeveEnabled(true);
         meta.setRightSleeveEnabled(true);
         setTeam(Replay.REPLAY_TEAM);
-        setSkin(PlayerSkin.fromUsername(edata.name));
+
     }
 
     public static FakePlayerOption defaultOptions() {

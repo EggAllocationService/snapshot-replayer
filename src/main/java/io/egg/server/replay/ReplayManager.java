@@ -12,9 +12,10 @@ import java.util.HashMap;
 public class ReplayManager {
     public static HashMap<String, Replay> replayHashMap = new HashMap<>();
     public static InstanceContainer create(String name, byte[] data) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
-        Replay r = Replay.load(data);
+        Replay r = Replay.load(name, data);
         InstanceContainer ic = InstanceManager.get().spawn(name, r.getDelegate(), r.getChunkLoader());;
         r.setInstance(ic);
+        replayHashMap.put(name, r);
 
         return ic;
     }

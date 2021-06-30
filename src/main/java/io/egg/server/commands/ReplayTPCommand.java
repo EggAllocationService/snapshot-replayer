@@ -19,6 +19,8 @@ import net.minestom.server.utils.Position;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
+
 public class ReplayTPCommand extends Command {
     public ReplayTPCommand() {
         super("rtp");
@@ -36,6 +38,13 @@ public class ReplayTPCommand extends Command {
             }
         });
         addSyntax(this::exec, targetArgument);
+        setDefaultExecutor((sender, context) -> {
+            ProfiledInstance pi = InstanceManager.get().getProfile((InstanceContainer) ((Player) sender).getInstance());
+            if (!(pi.getDelegate() instanceof ReplayProfileDelegate)) {
+                return;
+            }
+            sender.sendMessage(Arrays.toString(((ReplayProfileDelegate) pi.getDelegate()).r.players.keySet().toArray(new String[]{})));
+        });
     }
     public void exec(CommandSender sender, CommandContext context) {
         String target = context.get("target");

@@ -55,6 +55,8 @@ public class EntityDiesEvent implements ReplayEvent<EntityDiesEvent>, Reversible
         e.kill();
         if (e instanceof ReplayEntity) {
             r.entities.remove(entityId);
+        }else {
+            System.out.println("KILL(" + entityId + ")");
         }
     }
 

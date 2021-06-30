@@ -27,7 +27,7 @@ public class Database {
     MongoDatabase db;
     public MongoCollection<World> worlds;
     public MongoCollection<WorldChunk> worldChunks;
-
+    public MongoCollection<DatabaseReplay> replays;
     public Database(String databaseName) {
         CodecRegistry pojoCodecRegistry = fromRegistries(MongoClientSettings.getDefaultCodecRegistry(),
                 fromProviders(PojoCodecProvider.builder().automatic(true).build()));
@@ -36,6 +36,7 @@ public class Database {
         db = client.getDatabase(databaseName).withCodecRegistry(pojoCodecRegistry);
         worlds = db.getCollection("worlds", World.class);
         worldChunks = db.getCollection("chunks", WorldChunk.class);
+        replays = db.getCollection("saved", DatabaseReplay.class);
     }
 
 }

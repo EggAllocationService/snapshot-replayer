@@ -49,7 +49,6 @@ public class Main {
         MinecraftServer.getCommandManager().register(new LoadSnapshotDebugCommand());
         MinecraftServer.getCommandManager().register(new ReplaySeekCommand());
         MinecraftServer.getCommandManager().register(new ReplayTPCommand());
-        MinecraftServer.getCommandManager().register(new SpawnBlockCommand());
         MinecraftServer.setChunkViewDistance(8);
 
         Replay.REPLAY_TEAM = MinecraftServer.getTeamManager().createTeam("VIEWERS");
@@ -71,17 +70,26 @@ public class Main {
             return;
         }
 
+
         GlobalEventHandler globalEventHandler = MinecraftServer.getGlobalEventHandler();
         globalEventHandler.addEventCallback(PlayerLoginEvent.class, event -> {
 
             final Player player = event.getPlayer();
-            if (player instanceof ReplayPlayer) return;
+            if (player instanceof ReplayPlayer) {
+                event.setSpawningInstance(((ReplayPlayer) player).sendMeHere);
+                System.out.println("ReplayPlayer connected: " + player.getUsername());
+                return;
+            }
             event.setSpawningInstance(InstanceManager.get().getInstance("lobby"));
             player.setRespawnPoint(new Position(0.5, 65, 0.5));
         });
 
         globalEventHandler.addEventCallback(PlayerSkinInitEvent.class, event -> {
-            event.setSkin(SkinManager.getName(event.getPlayer().getUsername()));
+            if (event.getPlayer() instanceof ReplayPlayer) {
+                event.setSkin(SkinManager.getName(((ReplayPlayer) event.getPlayer()).edata.name));
+            } else {
+                event.setSkin(SkinManager.getName(event.getPlayer().getUsername()));
+            }
         });
 
 

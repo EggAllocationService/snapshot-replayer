@@ -4,6 +4,7 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import io.egg.server.loading.mogang.FakeChunkData;
 import io.egg.server.replay.Replay;
+import io.egg.server.replay.events.types.EntitySpawnEvent;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.fakeplayer.FakePlayerOption;
@@ -74,9 +75,17 @@ public class Snapshot {
                 continue;
             }
             if (entityInfo.type.equals("PLAYER")) {
-                ReplayPlayer pp = ReplayPlayer.create(entityInfo);
-                r.entities.put(entityInfo.id, pp);
-                r.players.put(entityInfo.name, pp);
+                EntitySpawnEvent bbb = new EntitySpawnEvent();
+                bbb.entityId = entityInfo.id;
+                bbb.x = entityInfo.x;
+                bbb.y = entityInfo.y;
+                bbb.z = entityInfo.z;
+                bbb.pitch = entityInfo.pitch;
+                bbb.yaw = entityInfo.yaw;
+                bbb.name = entityInfo.name;
+                bbb.type = "PLAYER";
+
+                r.spawnOnLoad.add(bbb);
             } else {
                 r.entities.put(entityInfo.id, new ReplayEntity(entityInfo));
             }

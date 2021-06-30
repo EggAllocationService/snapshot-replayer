@@ -64,6 +64,9 @@ public abstract class DefaultProfileDelegate {
     public void tick() {
 
     }
+    public Component getBar() {
+        return null;
+    }
 
     @EventHandler
     public void placeBlock(PlayerBlockPlaceEvent e) {

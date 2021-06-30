@@ -11,6 +11,7 @@ import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 import net.minestom.server.instance.IChunkLoader;
 import net.minestom.server.instance.InstanceContainer;
+import net.minestom.server.utils.Position;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
@@ -79,7 +80,22 @@ public class InstanceManager {
 
         return ic;
     }
+    public void destroy(String name, Player ignore) {
+        InstanceContainer i = instancesByName.get(name);
+        if (i == null) return;
+        for (Player p : i.getPlayers()) {
+            if (p == ignore) continue;
+            p.setInstance(getInstance("lobby"), new Position(0, 65, 0));
+            p.sendMessage(Component.text("You have been transferred to ", TextColor.color(0x036bfc))
+                    .append(Component.text("lobby", TextColor.color(0xfff133)))
+                    .append(Component.text(" (previous instance has been recycled)", TextColor.color(0xff5133)))
 
+            );
+        }
+        handle.unregisterInstance(i);
+        instancesByName.remove(name);
+        instances.remove(name);
+    }
     public void transfer(Player p, InstanceContainer target) {
         ProfiledInstance pi = getProfile(target);
         if (pi == null) {
@@ -104,6 +120,32 @@ public class InstanceManager {
 
 
     }
+    public void transfer(Player p, String t) {
+        ProfiledInstance pi = instances.get(t);
+        InstanceContainer target = pi.getDelegate().getInstance();
+        if (pi == null) {
+            //p.setInstance(target, new Position(0.5, 65, 0.5));
+            return;
+        }
+        PlayerJoinProfileEvent e = new PlayerJoinProfileEvent(p, target);
+        target.callEvent(PlayerJoinProfileEvent.class, e);
+
+        if (e.isCancelled()) {
+            p.sendMessage(Component.text("Pre-receive hook was declined by other instance: ", TextColor.color(255, 50, 50))
+                    .append(Component.text(e.getCancelReason(), TextColor.color(0xfff133)))
+            );
+            return;
+        }
+
+        p.sendMessage(Component.text("Sending you to ", TextColor.color(0x036bfc))
+                .append(Component.text(instanceName(target), TextColor.color(0xfff133)))
+        );
+
+        p.setInstance(target, e.getJoinPos());
+
+
+    }
+
 
     public InstanceContainer getInstance(String name) {
         return instancesByName.get(name);

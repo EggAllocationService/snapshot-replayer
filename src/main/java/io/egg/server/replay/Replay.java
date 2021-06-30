@@ -2,13 +2,16 @@ package io.egg.server.replay;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
+import io.egg.server.instances.InstanceManager;
 import io.egg.server.replay.events.Tick;
 import io.egg.server.replay.events.types.EntityMovementEvent;
+import io.egg.server.replay.events.types.EntitySpawnEvent;
 import io.egg.server.replay.events.types.PlayerBreakBlockEvent;
 import io.egg.server.replay.events.types.ReplayEvent;
 import io.egg.server.snapshots.ReplayPlayer;
 import io.egg.server.snapshots.Snapshot;
 import io.egg.server.snapshots.SnapshotChunkLoader;
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.scoreboard.Team;
@@ -30,12 +33,61 @@ public class Replay {
     public Direction direction = Direction.FORWARDS;
     InstanceContainer ic;
     public static Team REPLAY_TEAM;
-    public float playSpeed = 1f;
+    float playSpeed = 1f;
     public double tickProgress = 0;
+    public String name;
+    public PlaySpeed speed = PlaySpeed.NORMAL;
+    public ArrayList<EntitySpawnEvent> spawnOnLoad = new ArrayList<>();
 
+    public void setSpeed(PlaySpeed target) {
+        speed = target;
+        playSpeed = target.value;
+    }
+
+
+    public enum PlaySpeed{
+        TENTH(0.1f, "\u2152"),
+        QUARTER(0.25f, "\u00BC"),
+        HALF(0.5f, "\u00bd"),
+        NORMAL(1.0f, "1.0"),
+        DOUBLE(2.0f, "2.0"),
+        QUADRUPLE(4.0f, "4.0");
+
+        String text;
+        float value;
+        PlaySpeed(float val, String rep) {
+            text = rep;
+            value = val;
+        }
+    }
+
+
+
+    public void destroy() {
+        ic.getPlayers().forEach(player -> {
+            if (player instanceof ReplayPlayer) {
+                return;
+            }
+            InstanceManager.get().transfer(player, "lobby");
+        });
+        playing = false;
+        for (int b : entities.keySet()) {
+            entities.get(b).remove();
+            entities.remove(b);
+        }
+        MinecraftServer.getBossBarManager().destroyBossBar(getDelegate().bar);
+        players.clear();
+        ic.scheduleNextTick(instance -> {
+            InstanceManager.get().destroy(name, null);
+
+        });
+    }
 
     public void setInstance(InstanceContainer i) {
         ic = i;
+        for (EntitySpawnEvent e : spawnOnLoad) {
+            e.apply(i, this);
+        }
     }
     ReplayProfileDelegate cached = null;
     SnapshotChunkLoader cachedLoader = null;
@@ -50,6 +102,9 @@ public class Replay {
 
 
     public void parentTick() {
+        if(!playing) {
+            return;
+        }
         if (playing && direction == Direction.FORWARDS) {
             nextTick();
         } else if (playing && direction == Direction.BACKWARDS) {
@@ -75,14 +130,18 @@ public class Replay {
         } else {
             if (playSpeed < 1) {
                 tickProgress += playSpeed;
-                if (tickProgress > 1) {
+                if (tickProgress >= 1.0f) {
                     if (capturedTicks.size() <= currentTick +1) {
                         return;
                     }
-                    stepTick();
-                    return;
+                    capturedTicks.get(currentTick).apply(ic, this);
+                    currentTick++;
+                    tickProgress = 0;
+
+
                 } else {
                     // this is in slow motion, se we gotta GAME
+
                     capturedTicks.get(currentTick).applyInterpolated(ic, this, tickProgress, false);
 
                 }
@@ -107,12 +166,12 @@ public class Replay {
         } else {
             if (playSpeed < 1) {
                 tickProgress += playSpeed;
-                if (tickProgress > 1) {
+                if (tickProgress >= 1) {
                     if (capturedTicks.size() <= currentTick +1) {
                         return;
                     }
                     backTick();
-                    return;
+
                 } else {
                     // this is in slow motion, se we gotta GAME
                     capturedTicks.get(currentTick).applyInterpolated(ic, this, tickProgress, true);
@@ -129,7 +188,7 @@ public class Replay {
         }
     }
     private void stepTick() {
-        if (currentTick + 1 > capturedTicks.size()) {
+        if (currentTick + 1 >= capturedTicks.size()) {
             return;
         }
         currentTick++;
@@ -148,7 +207,7 @@ public class Replay {
 
 
 
-    public static Replay load(byte[] compressed) {
+    public static Replay load(String name, byte[] compressed) {
         byte[] data = decompress(compressed);
         ByteArrayDataInput bb = ByteStreams.newDataInput(data);
         byte version = bb.readByte();
@@ -160,6 +219,7 @@ public class Replay {
         byte[] events =  new byte[eventsLength];
         bb.readFully(events);
         Replay r = new Replay();
+        r.name = name;
         r.initialState = Snapshot.loadSnapshot(snapshot, r);
         loadTicks(events, r);
 

@@ -65,10 +65,8 @@ public class EntityMovementEvent implements ReplayEvent<EntityMovementEvent>, Re
 
     @Override
     public void apply(InstanceContainer i, Replay r) {
-        Position newPos = new Position();
-        newPos.setX(x);
-        newPos.setY(y);
-        newPos.setZ(z);
+        Position newPos = new Position(x,y , z);
+
         newPos.setYaw((float)yaw);
         newPos.setPitch((float) pitch);
         if (!r.entities.containsKey(entityId)) {
@@ -97,6 +95,7 @@ public class EntityMovementEvent implements ReplayEvent<EntityMovementEvent>, Re
         double tpitch = lerpD(fpitch, pitch, f);
         double tyaw = lerpD(fyaw, yaw, f);
         Position to = new Position(tx, ty, tz);
+
         to.setPitch((float) tpitch);
         to.setYaw((float) tyaw);
         if (!r.entities.containsKey(entityId)) {
@@ -121,6 +120,7 @@ public class EntityMovementEvent implements ReplayEvent<EntityMovementEvent>, Re
             return;
         }
         r.entities.get(entityId).teleport(to);
+
     }
 
     public double lerpD(double a, double b, double f) {

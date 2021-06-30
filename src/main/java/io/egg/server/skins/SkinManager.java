@@ -26,6 +26,9 @@ public class SkinManager {
         if (cache.containsKey(id)) {
             return cache.get(id);
         } else {
+            if (id == null) {
+                return PlayerSkin.fromUsername("Steve");
+            }
             //fetch from mogang
             if (id.contains("[")) {
                 return null;
